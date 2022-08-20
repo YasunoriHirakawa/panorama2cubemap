@@ -10,10 +10,6 @@
 #include <ctime>
 #include <fstream>
 
-#include "opencv2/highgui.hpp"
-#include "opencv2/core/core.hpp"
-#include "opencv2/imgproc.hpp"
-
 
 // this opencv: https://stackoverflow.com/a/34720686/2482283
 // cubemap: https://www.khronos.org/opengl/wiki/Cubemap_Texture
@@ -219,6 +215,38 @@ bool pano2cube(std::string inpath, std::vector<std::string>& outpaths, int width
     return true;
 }
 
+void pano2cube(cv::Mat& in, int width, std::vector<cv::Mat>& outs, cv::Mat& merged_out) {
+    
+    // convert to cubemap
+    // +x -x +y -x +z -z
+    for (int faceid = 0; faceid < 6; faceid++) {
+        cv::Mat out;
+        createCubeMapFace(in, out, faceid, width, width); // 10ms
+        outs.push_back(out);
+    }
+    
+    // merge
+    // right    +x
+    // left     -x
+    // top      +y
+    // bottom   -y
+    // front    +z
+    // back     -z
+    
+    int w = outs[0].cols;
+    int h = outs[0].rows;
+    cv::Mat merged(h*3, w*4, in.type());
+    
+    //cv::Mat imgPanelRoi(merged, cv::Rect(0, 0, w, h));
+    outs[1].copyTo(merged(cv::Rect(0, h, w, h))); // left
+    outs[4].copyTo(merged(cv::Rect(w, h, w, h))); // front
+    outs[0].copyTo(merged(cv::Rect(2*w, h, w, h))); // right
+    outs[5].copyTo(merged(cv::Rect(3*w, h, w, h))); // back
+    outs[2].copyTo(merged(cv::Rect(1*w, 0, w, h))); // top
+    outs[3].copyTo(merged(cv::Rect(1*w, 2*h, w, h))); // bottom
+
+    merged_out = std::move(merged);
+}
 
 #if 1
 
