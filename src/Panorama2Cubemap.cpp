@@ -215,7 +215,7 @@ bool pano2cube(std::string inpath, std::vector<std::string>& outpaths, int width
     return true;
 }
 
-void pano2cube(const cv::Mat& in, int width, std::vector<cv::Mat>& outs, cv::Mat& merged_out) {
+void pano2cube(const cv::Mat& in, std::vector<cv::Mat>& outs, cv::Mat& merged_out, int width) {
     
     // convert to cubemap
     // +x -x +y -x +z -z
@@ -235,7 +235,7 @@ void pano2cube(const cv::Mat& in, int width, std::vector<cv::Mat>& outs, cv::Mat
     
     int w = outs[0].cols;
     int h = outs[0].rows;
-    cv::Mat merged(h*3, w*4, in.type());
+    cv::Mat merged = cv::Mat::zeros(h*3, w*4, in.type());
     
     //cv::Mat imgPanelRoi(merged, cv::Rect(0, 0, w, h));
     outs[1].copyTo(merged(cv::Rect(0, h, w, h))); // left
@@ -248,7 +248,7 @@ void pano2cube(const cv::Mat& in, int width, std::vector<cv::Mat>& outs, cv::Mat
     merged_out = std::move(merged);
 }
 
-#if 1
+#if 0
 
 static inline std::string getCurrentTimestamp() {
     using std::chrono::system_clock;
@@ -338,7 +338,6 @@ static void testconvertAndView() {
     
     std::cout << "end: " << getCurrentTimestamp() << std::endl;
 }
-
 
 int testmain(int argc, const char * argv[]) {
 
