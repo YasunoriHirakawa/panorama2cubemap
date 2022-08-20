@@ -23,6 +23,6 @@
 /// @param mergedPath path for merged image
 bool pano2cube(std::string inpath, std::vector<std::string>& outpaths, int width = -1, std::string mergedPath = "");
 
-void pano2cube(cv::Mat& in, int width = -1, std::vector<cv::Mat>& outs, cv::Mat& merged_out);
+void pano2cube(const cv::Mat& in, std::vector<cv::Mat>& outs, cv::Mat& merged_out, int width = -1);
 
 #endif /* Panorama2Cubemap_hpp */

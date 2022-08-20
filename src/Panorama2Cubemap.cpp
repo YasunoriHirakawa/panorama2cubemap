@@ -215,7 +215,7 @@ bool pano2cube(std::string inpath, std::vector<std::string>& outpaths, int width
     return true;
 }
 
-void pano2cube(cv::Mat& in, int width, std::vector<cv::Mat>& outs, cv::Mat& merged_out) {
+void pano2cube(const cv::Mat& in, int width, std::vector<cv::Mat>& outs, cv::Mat& merged_out) {
     
     // convert to cubemap
     // +x -x +y -x +z -z
