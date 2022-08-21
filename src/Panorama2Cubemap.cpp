@@ -215,7 +215,7 @@ bool pano2cube(std::string inpath, std::vector<std::string>& outpaths, int width
     return true;
 }
 
-void pano2cube(const cv::Mat& in, std::vector<cv::Mat>& outs, cv::Mat& merged_out, int width) {
+void pano2cube(const cv::Mat& in, std::vector<cv::Mat>& outs, cv::Mat& merged_out, bool unmerge_top_and_bottom, int width) {
     
     // convert to cubemap
     // +x -x +y -x +z -z
@@ -235,15 +235,23 @@ void pano2cube(const cv::Mat& in, std::vector<cv::Mat>& outs, cv::Mat& merged_ou
     
     int w = outs[0].cols;
     int h = outs[0].rows;
-    cv::Mat merged = cv::Mat::zeros(h*3, w*4, in.type());
+    cv::Mat merged = unmerge_top_and_bottom ? cv::Mat::zeros(h, w*4, in.type())
+                                            : cv::Mat::zeros(h*3, w*4, in.type());
     
     //cv::Mat imgPanelRoi(merged, cv::Rect(0, 0, w, h));
-    outs[1].copyTo(merged(cv::Rect(0, h, w, h))); // left
-    outs[4].copyTo(merged(cv::Rect(w, h, w, h))); // front
-    outs[0].copyTo(merged(cv::Rect(2*w, h, w, h))); // right
-    outs[5].copyTo(merged(cv::Rect(3*w, h, w, h))); // back
-    outs[2].copyTo(merged(cv::Rect(1*w, 0, w, h))); // top
-    outs[3].copyTo(merged(cv::Rect(1*w, 2*h, w, h))); // bottom
+    if (unmerge_top_and_bottom) {
+        outs[1].copyTo(merged(cv::Rect(0, 0, w, h))); // left
+        outs[4].copyTo(merged(cv::Rect(w, 0, w, h))); // front
+        outs[0].copyTo(merged(cv::Rect(2*w, 0, w, h))); // right
+        outs[5].copyTo(merged(cv::Rect(3*w, 0, w, h))); // back
+    } else {
+        outs[1].copyTo(merged(cv::Rect(0, h, w, h))); // left
+        outs[4].copyTo(merged(cv::Rect(w, h, w, h))); // front
+        outs[0].copyTo(merged(cv::Rect(2*w, h, w, h))); // right
+        outs[5].copyTo(merged(cv::Rect(3*w, h, w, h))); // back
+        outs[2].copyTo(merged(cv::Rect(1*w, 0, w, h))); // top
+        outs[3].copyTo(merged(cv::Rect(1*w, 2*h, w, h))); // bottom
+    }
 
     merged_out = std::move(merged);
 }
